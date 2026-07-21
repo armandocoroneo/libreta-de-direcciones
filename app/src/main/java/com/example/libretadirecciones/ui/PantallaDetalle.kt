@@ -165,7 +165,7 @@ fun PantallaDetalle(
                 )
                 OutlinedTextField(
                     value = telefono, onValueChange = { telefono = it },
-                    label = { Text("Teléfono") }, modifier = Modifier.fillMaxWidth(), singleLine = true
+                    label = { Text("Teléfono (opcional)") }, modifier = Modifier.fillMaxWidth(), singleLine = true
                 )
                 OutlinedTextField(
                     value = descripcion, onValueChange = { descripcion = it },

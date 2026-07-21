@@ -2,7 +2,7 @@ workflows:
   android-apk:
     name: Compilar APK - Libreta de Direcciones
     max_build_duration: 30
-   instance_type: linux_x2
+    instance_type: linux_x2
     environment:
       java: 17
     scripts:

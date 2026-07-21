@@ -5,7 +5,6 @@ workflows:
     instance_type: linux
     environment:
       java: 17
-      android_signing: []
     scripts:
       - name: Compilar APK de depuración
         script: |

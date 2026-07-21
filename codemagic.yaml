@@ -1,0 +1,14 @@
+workflows:
+  android-apk:
+    name: Compilar APK - Libreta de Direcciones
+    max_build_duration: 30
+    instance_type: linux
+    environment:
+      java: 17
+      android_signing: []
+    scripts:
+      - name: Compilar APK de depuración
+        script: |
+          ./gradlew assembleDebug || gradle assembleDebug
+    artifacts:
+      - app/build/outputs/apk/debug/*.apk

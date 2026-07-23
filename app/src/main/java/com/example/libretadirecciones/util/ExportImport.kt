@@ -39,7 +39,8 @@ fun jsonAContactos(texto: String): List<Contacto> {
     val resultado = mutableListOf<Contacto>()
     for (i in 0 until arreglo.length()) {
         val obj = arreglo.getJSONObject(i)
-        val nombre = obj.optString("nombre").ifBlank { continue }
+        val nombre = obj.optString("nombre") 
+        if (nombre.isBlank()) continue
         resultado.add(
             Contacto(
                 nombre = nombre,

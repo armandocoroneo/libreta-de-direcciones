@@ -2,12 +2,15 @@ package com.example.libretadirecciones.ui
 
 import android.Manifest
 import android.content.pm.PackageManager
+import android.graphics.BitmapFactory
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -17,11 +20,15 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import com.example.libretadirecciones.data.Contacto
+import com.example.libretadirecciones.util.copiarFotoAAlmacenamientoInterno
 import com.google.android.gms.location.LocationServices
+import java.io.File
 import kotlin.math.round
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -43,11 +50,22 @@ fun PantallaDetalle(
     var latitud by remember { mutableStateOf<Double?>(null) }
     var longitud by remember { mutableStateOf<Double?>(null) }
     var favorito by remember { mutableStateOf(false) }
+    var fotoUri by remember { mutableStateOf<String?>(null) }
+    var ultimoContactoMillis by remember { mutableStateOf<Long?>(null) }
     var mostrarDialogoBorrar by remember { mutableStateOf(false) }
     var obteniendoUbicacion by remember { mutableStateOf(false) }
     var errorUbicacion by remember { mutableStateOf<String?>(null) }
 
     val clienteUbicacion = remember { LocationServices.getFusedLocationProviderClient(context) }
+
+    val selectorFoto = rememberLauncherForActivityResult(
+        ActivityResultContracts.GetContent()
+    ) { uri ->
+        if (uri != null) {
+            val rutaCopia = copiarFotoAAlmacenamientoInterno(context, uri)
+            if (rutaCopia != null) fotoUri = rutaCopia
+        }
+    }
 
     fun capturarUbicacion() {
         obteniendoUbicacion = true
@@ -94,6 +112,8 @@ fun PantallaDetalle(
                 latitud = it.latitud
                 longitud = it.longitud
                 favorito = it.favorito
+                fotoUri = it.fotoUri
+                ultimoContactoMillis = it.ultimoContactoMillis
             }
             cargado = true
         }
@@ -136,7 +156,9 @@ fun PantallaDetalle(
                                 latitud = latitud,
                                 longitud = longitud,
                                 etiquetaUbicacion = etiquetaUbicacion.trim(),
-                                favorito = favorito
+                                favorito = favorito,
+                                fotoUri = fotoUri,
+                                ultimoContactoMillis = ultimoContactoMillis
                             )
                         ) { alGuardar() }
                     }
@@ -159,6 +181,51 @@ fun PantallaDetalle(
                     .padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
+                // Selector de foto
+                Box(
+                    modifier = Modifier.fillMaxWidth(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(96.dp)
+                            .clip(CircleShape)
+                            .background(MaterialTheme.colorScheme.primaryContainer)
+                            .clickable { selectorFoto.launch("image/*") },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        val bitmap = remember(fotoUri) {
+                            fotoUri?.let { ruta ->
+                                try {
+                                    val archivo = File(ruta)
+                                    if (archivo.exists()) BitmapFactory.decodeFile(ruta) else null
+                                } catch (e: Exception) { null }
+                            }
+                        }
+                        if (bitmap != null) {
+                            Image(
+                                bitmap = bitmap.asImageBitmap(),
+                                contentDescription = "Foto del contacto",
+                                modifier = Modifier.fillMaxSize(),
+                                contentScale = ContentScale.Crop
+                            )
+                        } else {
+                            Icon(
+                                Icons.Default.AddAPhoto,
+                                contentDescription = "Agregar foto",
+                                modifier = Modifier.size(32.dp),
+                                tint = MaterialTheme.colorScheme.onPrimaryContainer
+                            )
+                        }
+                    }
+                }
+                if (fotoUri != null) {
+                    TextButton(
+                        onClick = { fotoUri = null },
+                        modifier = Modifier.align(Alignment.CenterHorizontally)
+                    ) { Text("Quitar foto") }
+                }
+
                 OutlinedTextField(
                     value = nombre, onValueChange = { nombre = it },
                     label = { Text("Nombre") }, modifier = Modifier.fillMaxWidth(), singleLine = true
@@ -270,7 +337,8 @@ fun PantallaDetalle(
                         Contacto(
                             id = idActual, nombre = nombre, descripcion = descripcion,
                             telefono = telefono, latitud = latitud, longitud = longitud,
-                            etiquetaUbicacion = etiquetaUbicacion, favorito = favorito
+                            etiquetaUbicacion = etiquetaUbicacion, favorito = favorito,
+                            fotoUri = fotoUri, ultimoContactoMillis = ultimoContactoMillis
                         )
                     )
                     mostrarDialogoBorrar = false

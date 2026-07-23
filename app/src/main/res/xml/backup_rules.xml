@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<full-backup-content>
+    <include domain="database" path="libreta_direcciones_db" />
+    <include domain="database" path="libreta_direcciones_db-shm" />
+    <include domain="database" path="libreta_direcciones_db-wal" />
+    <include domain="file" path="fotos_contactos/" />
+</full-backup-content>

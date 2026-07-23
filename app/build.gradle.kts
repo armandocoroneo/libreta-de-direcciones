@@ -9,6 +9,15 @@ android {
     namespace = "com.example.libretadirecciones"
     compileSdk = 34
 
+    signingConfigs {
+        create("firmaFija") {
+            storeFile = file("../keystore/debug-fijo.keystore")
+            storePassword = "libreta123"
+            keyAlias = "libretadirecciones"
+            keyPassword = "libreta123"
+        }
+    }
+
     defaultConfig {
         applicationId = "com.example.libretadirecciones"
         minSdk = 24
@@ -18,8 +27,12 @@ android {
     }
 
     buildTypes {
+        debug {
+            signingConfig = signingConfigs.getByName("firmaFija")
+        }
         release {
             isMinifyEnabled = false
+            signingConfig = signingConfigs.getByName("firmaFija")
         }
     }
 

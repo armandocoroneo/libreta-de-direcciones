@@ -6,11 +6,15 @@ class ContactoRepositorio(private val dao: ContactoDao) {
 
     fun obtenerTodos(): Flow<List<Contacto>> = dao.obtenerTodos()
 
+    suspend fun obtenerTodosUnaVez(): List<Contacto> = dao.obtenerTodosUnaVez()
+
     fun buscar(texto: String): Flow<List<Contacto>> = dao.buscar(texto)
 
     suspend fun obtenerPorId(id: Long): Contacto? = dao.obtenerPorId(id)
 
     suspend fun guardar(contacto: Contacto): Long = dao.insertar(contacto)
+
+    suspend fun importar(contactos: List<Contacto>) = dao.insertarTodos(contactos)
 
     suspend fun actualizar(contacto: Contacto) = dao.actualizar(contacto)
 
